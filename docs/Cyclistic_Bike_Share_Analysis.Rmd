@@ -1,0 +1,237 @@
+---
+title: "Cyclistic Bike Share Analysis"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+* In 2016, Cyclistic launched a successful bike-share offering. Since then, the program has grown to a fleet of 5,824 bicycles that are geotracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked from one station and returned to any other station in the system anytime. 
+Until now, Cyclistic’s marketing strategy relied on building general awareness and appealing to broad consumer segments. One approach that helped make these things possible was the flexibility of its pricing plans: single-ride passes, full-day passes, and annual memberships. Customers who purchase single-ride or full-day passes are referred to as casual riders. Customers who purchase annual memberships are Cyclistic members. 
+* Cyclistic’s finance analysts have concluded that annual members are much more profitable than casual riders. Although the pricing flexibility helps Cyclistic attract more customers, Moreno believes that maximizing the number of annual members will be key to future growth. Rather than creating a marketing campaign that targets all-new customers, Moreno believes there is a very good chance to convert casual riders into members. She notes that casual riders are already aware of the Cyclistic program and have chosen Cyclistic for their mobility needs. 
+* Moreno has set a clear goal: Design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ, why casual riders would buy a membership, and how digital media could affect their marketing tactics. Moreno and her team are interested in analyzing the Cyclistic historical bike trip data to identify trends
+
+## Project Scope
+How do annual members and casual riders use Cyclistic bikes differently?
+
+
+## Source
+The Cyclistic data is available at https://divvy-tripdata.s3.amazonaws.com/index.html.From that we are going to take the data from December 2021 to November 2022. 
+
+
+## Tools used for the analysis
+R Programming is used through this analysis for cleaning, preparing, Analyzing, visualizing and sharing the data.
+
+## Step 1: Loading libraries 
+
+loading the required libraries for cleaning, analyzing, and visualizing the data. 
+
+```{r libraries, message=FALSE}
+library("tidyverse")
+library(janitor)
+library(plyr)
+library("lubridate")
+```
+
+## Step 2: Setting the current working directory
+
+```{r wd}
+setwd("D:/Personal/Certification/Data Analytics/Google Data Analytics/Course 8/Case Study/Case Study 1 - Cyclistic Bike-Share")
+```
+
+
+## Step 3: Importing data
+
+The data I have been asked to clean is currently an external .csv file. The data taken are from Dec 2021 to Nov 2022. In order to view and clean it in `R`, we will need to import it. The `tidyverse` library `readr` package has a number of functions for "reading in" or importing data, including .csv files. 
+
+```{r csv_data, message=FALSE}
+Dec2021_Cyc <- read_csv("CSV files/202112-Cyclistic-trip-data.csv")
+Jan2022_Cyc <- read_csv("CSV files/202201-Cyclistic-trip-data.csv")
+Feb2022_Cyc <- read_csv("CSV files/202202-Cyclistic-trip-data.csv")
+Mar2022_Cyc <- read_csv("CSV files/202203-Cyclistic-trip-data.csv")
+Apr2022_Cyc <- read_csv("CSV files/202204-Cyclistic-trip-data.csv")
+May2022_Cyc <- read_csv("CSV files/202205-Cyclistic-trip-data.csv")
+Jun2022_Cyc <- read_csv("CSV files/202206-Cyclistic-trip-data.csv")
+Jul2022_Cyc <- read_csv("CSV files/202207-Cyclistic-trip-data.csv")
+Aug2022_Cyc <- read_csv("CSV files/202208-Cyclistic-trip-data.csv")
+Sep2022_Cyc <- read_csv("CSV files/202209-Cyclistic-trip-data.csv")
+Oct2022_Cyc <- read_csv("CSV files/202210-Cyclistic-trip-data.csv")
+Nov2022_Cyc <- read_csv("CSV files/202211-Cyclistic-trip-data.csv")
+
+```
+
+
+## Step 4: Getting to know our Data
+
+Each imported csv files contains the 13 columns and all column names are exactly the same. Next, the data has to be merged as a single csv file to do the analysis. Before merging, we have to check the data type of the started_at and ended_at. The started_at from Dec 2021 to Jun 2022 are Character and from Jul 2022 to Nov 2022 are in Date and time format. We have to convert all to a 'PoSIXct' date and time format. 
+
+```{r}
+str(Dec2021_Cyc$started_at)
+str(Jan2022_Cyc$started_at)
+str(Feb2022_Cyc$started_at)
+str(Mar2022_Cyc$started_at)
+str(Apr2022_Cyc$started_at)
+str(May2022_Cyc$started_at)
+str(Jun2022_Cyc$started_at)
+str(Jul2022_Cyc$started_at)
+str(Aug2022_Cyc$started_at)
+str(Sep2022_Cyc$started_at)
+str(Oct2022_Cyc$started_at)
+str(Nov2022_Cyc$started_at)
+
+```
+
+
+## Step 5: Changing the data type (December 2021 to June 2022)
+
+Created a new variable Dec21_to_Jun22 and merged the data of Dec 2021 to Jun 2022. Later the data type of columns Started_at and ended_at changed to 'POSIXct' date and time format. 
+
+```{r Dec21_to_Jun22}
+Dec21_to_Jun22 <- rbind(Dec2021_Cyc, Jan2022_Cyc, Feb2022_Cyc, Mar2022_Cyc, Apr2022_Cyc, May2022_Cyc, Jun2022_Cyc) 
+Dec21_to_Jun22$started_at <- as.POSIXct(dmy_hm(Dec21_to_Jun22$started_at))
+Dec21_to_Jun22$ended_at <- as.POSIXct(dmy_hm(Dec21_to_Jun22$ended_at))
+```
+
+Checking the converted data.
+```{r datacheck_Dec21_to_Jun22}
+str(Dec21_to_Jun22$started_at)
+str(Dec21_to_Jun22$ended_at)
+```
+Now the data type of Dec21_to_Jun22 converted to POSIXct type. Next, we will do the same for the data from July to November.
+
+## Step 6: Changing the data type (July 2022 to November 2022)
+Created a new variable Jul22_to_Nov22 and merged the data of Jul 2022 to Nov 2022. Later the data type of columns Started_at and ended_at changed to POSIXct date and time format. 
+
+```{r Jul22_to_Nov22}
+Jul22_to_Nov22 <- rbind(Jul2022_Cyc, Aug2022_Cyc, Sep2022_Cyc, Oct2022_Cyc, Nov2022_Cyc) 
+Jul22_to_Nov22$started_at <- as.POSIXct(Jul22_to_Nov22$started_at)
+Jul22_to_Nov22$ended_at <- as.POSIXct(Jul22_to_Nov22$ended_at)
+```
+
+Checking the converted data.
+```{r datacheck_Jul22_to_Nov22}
+str(Jul22_to_Nov22$started_at)
+str(Jul22_to_Nov22$ended_at)
+```
+## Step 7: Merging data
+
+Now all data type has been converted to same format. Next, the data has to be merged as a single file for easy calculations.
+
+```{r databind}
+Bikeshare_Dec21_Nov22 <- rbind(Dec21_to_Jun22, Jul22_to_Nov22)
+glimpse(Bikeshare_Dec21_Nov22)
+```
+## Step 8: extract month, days of weekdays, time, and Year from Started_at and ended_at
+Before extracting we keep only the required data.
+
+```{r dataclean}
+Bikeshare_Dec21_Nov22 <- Bikeshare_Dec21_Nov22 %>%
+  select(-c(start_lat, start_lng, end_lat, end_lng, start_station_id,end_station_id, end_station_name))
+```
+
+Extracting the data
+```{r dataextract}
+Bikeshare_Dec21_Nov22$start_time <- format(as.POSIXct(Bikeshare_Dec21_Nov22$started_at), format = "%H:%M")
+Bikeshare_Dec21_Nov22$end_time <- format(as.POSIXct(Bikeshare_Dec21_Nov22$ended_at), format = "%H:%M")
+Bikeshare_Dec21_Nov22$month <- format(as.POSIXct(Bikeshare_Dec21_Nov22$started_at), format = "%m")
+Bikeshare_Dec21_Nov22$day_of_weekdays <- format(as.POSIXct(Bikeshare_Dec21_Nov22$started_at), format = "%A")
+Bikeshare_Dec21_Nov22$year <- format(as.POSIXct(Bikeshare_Dec21_Nov22$started_at), format = "%Y")
+```
+
+## Step 9: calculate the ride length by using the difftime function
+Calculating the ride length to find the average ride length of each riders. 
+
+```{r ride_length}
+Bikeshare_Dec21_Nov22$ride_length <- difftime(strptime(Bikeshare_Dec21_Nov22$end_time, "%H:%M"), 
+                                                 strptime(Bikeshare_Dec21_Nov22$start_time, "%H:%M"))
+```
+
+## Step 10: Finding trends with the cleaned data
+
+summarizing the date to find Max, Min, and Mean values. 
+```{r Cyclistic_Summary, message=FALSE}
+Cyclistic_summary <- Bikeshare_Dec21_Nov22 %>%
+  drop_na() %>%
+  dplyr::group_by(member_casual) %>%
+  dplyr::summarise(mean_ride_len = round(mean(ride_length), digits = 2), max_time = max(ride_length), 
+                   min_time = min(ride_length))
+glimpse(Cyclistic_summary)
+```
+
+Number of rides comparison on weekdays
+```{r day_of_weekdays, message=FALSE}
+Avg_ride_len_weekdays <- Bikeshare_Dec21_Nov22 %>%
+  drop_na() %>%
+  dplyr::group_by(day_of_weekdays, member_casual) %>%
+  dplyr::arrange(day_of_weekdays) %>%
+  dplyr::summarise(mean_ride_len = round(mean(ride_length), digits = 2))
+glimpse(Avg_ride_len_weekdays)
+
+```
+Number of rides comparison by month  
+
+```{r avg_len_monthly, message=FALSE}
+Avg_ride_monthly <- Bikeshare_Dec21_Nov22 %>%
+  drop_na() %>%
+  dplyr::group_by(month, member_casual) %>%
+  dplyr::summarise(mean_ride_len = round(mean(ride_length), digits = 2))
+
+glimpse(Avg_ride_monthly)
+```
+## Step 11: Visualizing the data using ggplot2 
+#### 1.Average ride length of casual riders and membership holders
+
+```{r Summary_plot, message=FALSE}
+Cyclistic_summary_plot <- ggplot(data = Cyclistic_summary, aes(x = member_casual, y = mean_ride_len))
+Cyclistic_summary_plot + geom_bar(stat = "identity", aes(fill = member_casual)) + labs(title = "Cyclistic Ride length vs member type", caption = "Average ride length of meber and casual riders") +
+  geom_text(aes(label = round(mean_ride_len)))
+```
+
+#### 2. Average ride length comparison on Weekdays
+
+```{r weekdays_plot, message=FALSE}
+num_of_weekdays_plot <- ggplot(data = Avg_ride_len_weekdays, aes(x = day_of_weekdays, y = mean_ride_len))
+num_of_weekdays_plot + geom_bar(stat = "identity", aes(fill = member_casual), position = "dodge") + 
+  labs(title = "Average ride length on weekday comparison (Dec 2021 to Nov 2022)", caption = "The data taken from Dec 2021 to Nov 2022") +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  geom_text(aes(label = round(mean_ride_len)), vjust = "right", hjust = "left")
+
+```
+
+#### 3. Average ride length comparission of riders on Monthly
+
+```{r monthly_plot, message=FALSE}
+Avg_ride_monthly_plot <- ggplot(data = Avg_ride_monthly, aes(x = month, y = mean_ride_len))
+Avg_ride_monthly_plot + geom_bar(stat = "identity", aes(fill = member_casual), position = "dodge") + 
+  labs(title = "Average ride length monthly comparison (2021 to 2022)", 
+       caption = "The data taken from Dec 2021 to Nov 2022") +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  geom_text(aes(label = round(mean_ride_len)), vjust = "right", hjust = "left")
+
+```
+
+## Conlusion
+### what does the data tell us?
+
+#### key takeaways
+* Casual users tended to ride more during Feb - May. Their participation exceeded that of the long term members.
+* To further that the Casual demographic spent on average a lot longer time per ride than their long-term counter-parts.
+* The days of the week also further shows that causal riders prefer to use the service during the weekends as their usage peaked then. The long term members conversly utilised the service more-so throughout the typical work week i.e (Monday- friday)
+
+### Recommendations
+#### This report recommends the following:
+* Introducing plans that may be more appealing to casuals for the summer months. This marketing should be done during the winter months in preperation.
+* The casual users might be more interested in a memebrship option that allows for per-use balance card. Alternatively, the existing payment structure may be altered in order to make single-use more costly to the casual riders as well as lowering the long-term membership rate.
+* Membership rates specifically for the warmer months as well as for those who only ride on the weekends would assist in targeting the casual riders more specifically
+
+### Things to Consider
+#### Additional points that were not examined
+The report understands the scope of this analysis is extremely limited and because of that fact, additional data, as well as data points may have been able to contribute to this report offering an even more granular analysis. The following are data points that could have enhanced the report:
+
+* Age and gender: This would add a dynamic to whether or not customers are being targeted across demograpic lines. Is the existing marketing effective? Is there potential for more inclusive targeting?
+* Pricing structure: THe actual pricing plans data was not provided and would give further insight to which plans are the most popular and by (how much) when comparing them. It would also be effective to understanding the spending behaviour of casual user.
+* Household income data: Pinpointing the average income of the long-term memebrs as compared to the casual counter-parts would allow for further analysis of what is the typical economic standing of each type of member, as well as providing the ability to analysis overall price sensitivity between the two different membership types.
+
+## Thank You!
